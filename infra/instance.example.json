@@ -1,0 +1,9 @@
+{
+  "metadata": {"name": "mascot-3d", "parent_id": "<YOUR_PROJECT_ID>"},
+  "spec": {
+    "resources": {"platform": "gpu-h200-sxm", "preset": "1gpu-16vcpu-200gb"},
+    "network_interfaces": [{"subnet_id": "<YOUR_SUBNET_ID>", "name": "eth0", "ip_address": {}, "public_ip_address": {}}],
+    "boot_disk": {"attach_mode": "READ_WRITE", "managed_disk": {"name": "mascot-3d-boot", "spec": {"size_gibibytes": "300", "type": "NETWORK_SSD", "source_image_id": "computeimage-e01akxd4b8jhm5zgk0"}}},
+    "cloud_init_user_data": "#cloud-config\nusers:\n  - name: mascot\n    sudo: ALL=(ALL) NOPASSWD:ALL\n    shell: /bin/bash\n    ssh_authorized_keys:\n      - <YOUR_SSH_PUBLIC_KEY>\n"
+  }
+}

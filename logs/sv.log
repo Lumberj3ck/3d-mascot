@@ -1,0 +1,49 @@
+Using cache found in /home/mascot/.cache/torch/hub/valeoai_NAF_main
+Using cache found in /home/mascot/.cache/torch/hub/valeoai_NAF_main
+Using cache found in /home/mascot/.cache/torch/hub/valeoai_NAF_main
+[SPARSE] Conv backend: flex_gemm; Attention backend: flash_attn
+[Pipeline] Loading from TencentARC/Pixal3D...
+[ATTENTION] Using backend: flash_attn
+[ImageCond] Building DinoV3ProjFeatureExtractor models...
+[NAF] Pre-loading NAF upsampler model...
+[Pipeline] Standard mode (all models on GPU).
+[Inference] Processing image: /home/mascot/front_single.png
+[MoGe-2] Loading model for camera estimation...
+[Inference] Estimating camera parameters...
+  camera_angle_x=0.5210, distance=1.8759
+[Inference] Running 3D generation pipeline...
+[Inference] Using pipeline_type=1536_cascade
+Sampling sparse structure (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling sparse structure (proj):   8%|▊         | 1/12 [00:00<00:01,  5.83it/s]Sampling sparse structure (proj):  25%|██▌       | 3/12 [00:00<00:01,  8.88it/s]Sampling sparse structure (proj):  42%|████▏     | 5/12 [00:00<00:00,  9.48it/s]Sampling sparse structure (proj):  58%|█████▊    | 7/12 [00:00<00:00,  9.72it/s]Sampling sparse structure (proj):  75%|███████▌  | 9/12 [00:00<00:00,  9.84it/s]Sampling sparse structure (proj):  92%|█████████▏| 11/12 [00:01<00:00, 10.80it/s]Sampling sparse structure (proj): 100%|██████████| 12/12 [00:01<00:00, 10.43it/s]
+Sampling shape SLat (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling shape SLat (proj):   8%|▊         | 1/12 [00:00<00:01,  6.13it/s]Sampling shape SLat (proj):  17%|█▋        | 2/12 [00:00<00:01,  7.26it/s]Sampling shape SLat (proj):  25%|██▌       | 3/12 [00:00<00:01,  7.69it/s]Sampling shape SLat (proj):  33%|███▎      | 4/12 [00:00<00:01,  7.94it/s]Sampling shape SLat (proj):  42%|████▏     | 5/12 [00:00<00:00,  8.05it/s]Sampling shape SLat (proj):  50%|█████     | 6/12 [00:00<00:00,  8.13it/s]Sampling shape SLat (proj):  58%|█████▊    | 7/12 [00:00<00:00,  8.22it/s]Sampling shape SLat (proj):  67%|██████▋   | 8/12 [00:01<00:00,  8.31it/s]Sampling shape SLat (proj):  75%|███████▌  | 9/12 [00:01<00:00,  8.31it/s]Sampling shape SLat (proj):  92%|█████████▏| 11/12 [00:01<00:00, 10.93it/s]Sampling shape SLat (proj): 100%|██████████| 12/12 [00:01<00:00,  9.21it/s]
+Sampling HR shape SLat (proj, 1536):   0%|          | 0/12 [00:00<?, ?it/s]Sampling HR shape SLat (proj, 1536):   8%|▊         | 1/12 [00:01<00:12,  1.14s/it]Sampling HR shape SLat (proj, 1536):  17%|█▋        | 2/12 [00:02<00:11,  1.14s/it]Sampling HR shape SLat (proj, 1536):  25%|██▌       | 3/12 [00:03<00:10,  1.14s/it]Sampling HR shape SLat (proj, 1536):  33%|███▎      | 4/12 [00:04<00:09,  1.14s/it]Sampling HR shape SLat (proj, 1536):  42%|████▏     | 5/12 [00:05<00:07,  1.14s/it]Sampling HR shape SLat (proj, 1536):  50%|█████     | 6/12 [00:06<00:06,  1.14s/it]Sampling HR shape SLat (proj, 1536):  58%|█████▊    | 7/12 [00:07<00:05,  1.14s/it]Sampling HR shape SLat (proj, 1536):  67%|██████▋   | 8/12 [00:09<00:04,  1.14s/it]Sampling HR shape SLat (proj, 1536):  75%|███████▌  | 9/12 [00:10<00:03,  1.14s/it]Sampling HR shape SLat (proj, 1536):  83%|████████▎ | 10/12 [00:10<00:01,  1.04it/s]Sampling HR shape SLat (proj, 1536):  92%|█████████▏| 11/12 [00:11<00:00,  1.18it/s]Sampling HR shape SLat (proj, 1536): 100%|██████████| 12/12 [00:11<00:00,  1.31it/s]Sampling HR shape SLat (proj, 1536): 100%|██████████| 12/12 [00:11<00:00,  1.00it/s]
+Sampling texture SLat (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling texture SLat (proj):   8%|▊         | 1/12 [00:00<00:06,  1.79it/s]Sampling texture SLat (proj):  17%|█▋        | 2/12 [00:01<00:05,  1.76it/s]Sampling texture SLat (proj):  25%|██▌       | 3/12 [00:01<00:05,  1.76it/s]Sampling texture SLat (proj):  33%|███▎      | 4/12 [00:02<00:04,  1.75it/s]Sampling texture SLat (proj):  42%|████▏     | 5/12 [00:02<00:04,  1.75it/s]Sampling texture SLat (proj):  50%|█████     | 6/12 [00:03<00:03,  1.75it/s]Sampling texture SLat (proj):  58%|█████▊    | 7/12 [00:03<00:02,  1.75it/s]Sampling texture SLat (proj):  67%|██████▋   | 8/12 [00:04<00:02,  1.74it/s]Sampling texture SLat (proj):  75%|███████▌  | 9/12 [00:05<00:01,  1.74it/s]Sampling texture SLat (proj):  83%|████████▎ | 10/12 [00:05<00:01,  1.74it/s]Sampling texture SLat (proj):  92%|█████████▏| 11/12 [00:06<00:00,  1.74it/s]Sampling texture SLat (proj): 100%|██████████| 12/12 [00:06<00:00,  1.74it/s]Sampling texture SLat (proj): 100%|██████████| 12/12 [00:06<00:00,  1.75it/s]
+[Inference] Extracting GLB...
+Extracting GLB:   0%|          | 0/6 [00:00<?, ?it/s]Building BVH:  17%|█▋        | 1/6 [00:00<00:00, 104.43it/s]Building BVH:  33%|███▎      | 2/6 [00:07<00:15,  3.76s/it] Cleaning mesh:  33%|███▎      | 2/6 [00:07<00:15,  3.76s/it]/home/mascot/miniconda3/envs/trellis2/lib/python3.10/site-packages/cumesh/remeshing.py:220: UserWarning: Using torch.cross without specifying the dim arg is deprecated.
+Please either pass the dim explicitly or simply use torch.linalg.cross.
+The default value of dim will change to agree with that of linalg.cross in a future release. (Triggered internally at /pytorch/aten/src/ATen/native/Cross.cpp:62.)
+  normals0 = torch.cross(mesh_vertices[atempt_triangles_0[:, 1]] - mesh_vertices[atempt_triangles_0[:, 0]], mesh_vertices[atempt_triangles_0[:, 2]] - mesh_vertices[atempt_triangles_0[:, 0]])
+Cleaning mesh:  50%|█████     | 3/6 [00:09<00:09,  3.14s/it]Parameterizing new mesh:  50%|█████     | 3/6 [00:09<00:09,  3.14s/it]Parameterizing new mesh:  67%|██████▋   | 4/6 [01:35<01:07, 33.99s/it]Sampling attributes:  67%|██████▋   | 4/6 [01:35<01:07, 33.99s/it]    Sampling attributes:  83%|████████▎ | 5/6 [01:37<00:22, 22.76s/it]Finalizing mesh:  83%|████████▎ | 5/6 [01:37<00:22, 22.76s/it]    Finalizing mesh: 100%|██████████| 6/6 [01:55<00:00, 21.08s/it]Finalizing mesh: 100%|██████████| 6/6 [01:55<00:00, 19.17s/it]
+[Done] GLB saved to: /home/mascot/runs/dragon_single.glb
+	Command being timed: "python inference.py --image /home/mascot/front_single.png --output /home/mascot/runs/dragon_single.glb"
+	User time (seconds): 403.17
+	System time (seconds): 75.44
+	Percent of CPU this job got: 207%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:50.64
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 19422276
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 14
+	Minor (reclaiming a frame) page faults: 9475621
+	Voluntary context switches: 433124
+	Involuntary context switches: 5040
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2623936
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

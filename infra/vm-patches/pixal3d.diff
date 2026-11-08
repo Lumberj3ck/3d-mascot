@@ -1,0 +1,28 @@
+f7cf38429b0bd264f1995f0f8743a88b1c728b94
+diff --git a/pixal3d/pipelines/rembg/BiRefNet.py b/pixal3d/pipelines/rembg/BiRefNet.py
+index c71a992..8686432 100644
+--- a/pixal3d/pipelines/rembg/BiRefNet.py
++++ b/pixal3d/pipelines/rembg/BiRefNet.py
+@@ -7,6 +7,9 @@ from PIL import Image
+ 
+ class BiRefNet:
+     def __init__(self, model_name: str = "ZhengPeng7/BiRefNet"):
++        # briaai/RMBG-2.0 is gated; use the open BiRefNet weights (same architecture).
++        if model_name == "briaai/RMBG-2.0":
++            model_name = "ZhengPeng7/BiRefNet"
+         self.model = AutoModelForImageSegmentation.from_pretrained(
+             model_name, trust_remote_code=True
+         )
+diff --git a/requirements.txt b/requirements.txt
+index 8304c6a..296e8f2 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -5,7 +5,7 @@ imageio-ffmpeg==0.6.0
+ tqdm==4.67.1
+ easydict==1.13
+ opencv-python-headless==4.12.0.88
+-trimesh==4.10.1
++trimesh
+ transformers==4.57.3
+ zstandard==0.25.0
+ kornia==0.8.2
