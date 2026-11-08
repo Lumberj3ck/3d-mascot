@@ -1,4 +1,17 @@
 f7cf38429b0bd264f1995f0f8743a88b1c728b94
+diff --git a/inference.py b/inference.py
+index 4fe1c44..c4db52c 100644
+--- a/inference.py
++++ b/inference.py
+@@ -193,7 +193,7 @@ def run_inference(
+     image_preprocessed = pipeline.preprocess_image(img)
+ 
+     # Save preprocessed image for MoGe
+-    tmp_path = os.path.join(os.path.dirname(os.path.abspath(output_path)), f"_tmp_preprocessed_{int(time.time()*1000)}.png")
++    tmp_path = os.path.join(os.path.dirname(os.path.abspath(output_path)), f"_tmp_preprocessed_{os.getpid()}_{int(time.time()*1000)}.png")
+     image_preprocessed.save(tmp_path)
+ 
+     # Camera estimation
 diff --git a/pixal3d/pipelines/rembg/BiRefNet.py b/pixal3d/pipelines/rembg/BiRefNet.py
 index c71a992..8686432 100644
 --- a/pixal3d/pipelines/rembg/BiRefNet.py
@@ -13,6 +26,29 @@ index c71a992..8686432 100644
          self.model = AutoModelForImageSegmentation.from_pretrained(
              model_name, trust_remote_code=True
          )
+diff --git a/pixal3d/trainers/flow_matching/mixins/image_conditioned_proj.py b/pixal3d/trainers/flow_matching/mixins/image_conditioned_proj.py
+index 0f721e0..6658854 100644
+--- a/pixal3d/trainers/flow_matching/mixins/image_conditioned_proj.py
++++ b/pixal3d/trainers/flow_matching/mixins/image_conditioned_proj.py
+@@ -513,9 +513,15 @@ class DinoV3ProjFeatureExtractor(nn.Module):
+         if self.naf_model is None:
+             import torch.hub
+             device = next(self.model.parameters()).device
+-            self.naf_model = torch.hub.load(
+-                "valeoai/NAF", "naf", pretrained=True, device=device, trust_repo=True
+-            )
++            # Prefer the local torch.hub cache: "valeoai/NAF" makes a GitHub API call on every load (flaky 504s).
++            import os as _os
++            _local = _os.path.join(torch.hub.get_dir(), "valeoai_NAF_main")
++            if _os.path.isdir(_local):
++                self.naf_model = torch.hub.load(_local, "naf", source="local", pretrained=True, device=device)
++            else:
++                self.naf_model = torch.hub.load(
++                    "valeoai/NAF", "naf", pretrained=True, device=device, trust_repo=True
++                )
+             self.naf_model.eval()
+             self.naf_model.requires_grad_(False)
+         
 diff --git a/requirements.txt b/requirements.txt
 index 8304c6a..296e8f2 100644
 --- a/requirements.txt

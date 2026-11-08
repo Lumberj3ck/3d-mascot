@@ -11,3 +11,8 @@ __pycache__/
 # Nebius resource IDs / keys (use infra/instance.example.json as template)
 infra/instance.json
 *.blend1
+
+# Codex generation logs (session ids, local paths)
+inputs/items/concepts/logs/
+# partial item outputs are committed once the item pipeline is done
+outputs/items/raw/
