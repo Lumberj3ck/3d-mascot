@@ -15,7 +15,7 @@ IN, OUT, TEX = args[0], args[1], os.path.abspath(args[2])
 t0 = time.time()
 bpy.ops.wm.open_mainfile(filepath=IN)
 sc = bpy.context.scene
-src, body = bpy.data.objects["Clean"], bpy.data.objects["Body"]
+src, body = bpy.data.objects.get("ColorSrc") or bpy.data.objects["Clean"], bpy.data.objects["Body"]
 src.hide_set(False)
 nt = body.data.materials[0].node_tree
 SIZE = nt.nodes["basecolor"].image.size[0]
@@ -69,6 +69,20 @@ wb = (d11 * d20 - d01 * d21) / den; wc = (d00 * d21 - d01 * d20) / den; wa = 1 -
 bary = np.clip(np.stack([wa, wb, wc], 1), 0, 1); bary /= bary.sum(1, keepdims=True)
 uv = (UV[tri_l[tri]] * bary[..., None]).sum(1)
 
+def dilate(px, valid, iters=24):
+    """Grow island colours outward into empty texels (prevents dark seams from texture filtering/mipmaps)."""
+    px = px.copy(); filled = valid.copy()
+    for _ in range(iters):
+        if filled.all(): break
+        acc = np.zeros_like(px); cnt = np.zeros(filled.shape, np.float32)
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)):
+            f = np.roll(np.roll(filled, dy, 0), dx, 1); p = np.roll(np.roll(px, dy, 0), dx, 1)
+            acc += p * f[..., None]; cnt += f
+        grow = (~filled) & (cnt > 0)
+        px[grow] = acc[grow] / cnt[grow][:, None]; filled |= grow
+    if not filled.all(): px[~filled] = px[filled].mean(0)
+    return px
+
 # ---- 3. sample the source textures and write the Body maps
 smat = src.data.materials[0].node_tree
 def src_image(socket_name):
@@ -97,7 +111,16 @@ for name, sock, chan in [("basecolor", "Base Color", None), ("emission", "Emissi
         out[valid, :3] = vals[:, chan:chan + 1]
     else:
         out[valid, :3] = vals[:, :3]
+    # Prefer the ray-cast bake from bake_body.py (projects along the surface normal); the nearest-surface value
+    # is only a fallback for texels whose ray missed (magenta sentinel). Nearest lookups alone jump to the dark
+    # inner walls of grooves (belly plates) where the decimated surface cuts across them.
     img = nt.nodes[name].image
+    baked = np.array(img.pixels[:], np.float32).reshape(SIZE, SIZE, 4)
+    missed = (np.abs(baked[..., 0] - 1) < 0.02) & (baked[..., 1] < 0.02) & (np.abs(baked[..., 2] - 1) < 0.02)
+    use_baked = valid & ~missed
+    out[use_baked, :3] = baked[use_baked, :3]
+    print(f"  {name}: ray-baked {use_baked.sum()} texels, nearest-surface fallback {(valid & missed).sum()}", flush=True)
+    out = dilate(out, valid)
     img.pixels = out.ravel()
     img.filepath_raw = os.path.join(TEX, f"body_{name}.png"); img.file_format = "PNG"; img.save()
     print(f"transferred {name} (from {simg.name})  {time.time()-t0:.0f}s", flush=True)

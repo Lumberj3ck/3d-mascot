@@ -1,20 +1,119 @@
 {
-  "style": "Match the attached STYLE REFERENCE (a soft clay chibi dragon) exactly in rendering style: soft matte clay / felt material, smooth rounded chunky forms, pastel colors, soft studio lighting. Palette: sage green, deep sage-teal, cream, with small accents of dusty coral, soft lavender or warm honey-yellow. Composition: the item alone (no character, no hands, no other props), centered, 3/4 front view from slightly above, whole object fully in frame with generous margin, plain pure white background, no ground shadow, no text, no watermark. Square image.",
-  "items": [
-    {"id": "wizard_hat",    "slot": "head",  "type": "socket",  "method": "pixal3d",    "desc": "a small cute wizard hat for this chibi dragon, deep sage-teal fabric with cream star patches and a cream band, slightly floppy tip"},
-    {"id": "flower_crown",  "slot": "head",  "type": "socket",  "method": "pixal3d",    "desc": "a small flower crown: a ring of chubby rounded clay flowers in cream, dusty coral and soft lavender with little sage leaves, thick and plump so it reads as one solid ring"},
-    {"id": "round_glasses", "slot": "face",  "type": "socket",  "method": "pixal3d",    "desc": "a pair of cute round glasses with very thick, chunky rounded warm-brown frames and short stubby temples, no lenses (empty rings), toy-like proportions"},
-    {"id": "bow_tie",       "slot": "neck",  "type": "socket",  "method": "pixal3d",    "desc": "a chunky puffy bow tie in dusty coral with cream polka dots and a rounded knot"},
-    {"id": "scarf",         "slot": "neck",  "type": "skinned", "method": "procedural", "desc": "knitted scarf, sage-teal with cream stripes (built from the body mesh)"},
-    {"id": "sweater",       "slot": "torso", "type": "skinned", "method": "procedural", "desc": "cozy cream knit sweater with wing and tail holes (built from the body mesh)"},
-    {"id": "cape",          "slot": "back",  "type": "skinned", "method": "procedural", "desc": "little lavender cape (built from the body mesh)"},
-    {"id": "bootie",        "slot": "feet",  "type": "socket",  "method": "pixal3d",    "desc": "a single cute round chubby bootie slipper, cream knit with a sage-teal cuff and a tiny pompom, very short and round (for stubby chibi feet)"},
-    {"id": "tail_ribbon",   "slot": "tail",  "type": "socket",  "method": "pixal3d",    "desc": "a plump soft-lavender ribbon bow tied around a short thick band ring, with two short rounded ribbon tails"},
-    {"id": "star_plush",    "slot": "hand",  "type": "socket",  "method": "pixal3d",    "desc": "a small plush toy: a chubby five-point star plushie in warm honey-yellow with a tiny cute face (dot eyes, small smile) and stitched seams"},
-    {"id": "cushion_bed",   "slot": "room",  "type": "prop",    "method": "pixal3d",    "desc": "a round plush pet bed: a plump cream rounded rim with a sage-teal soft cushion inside"},
-    {"id": "food_bowl",     "slot": "room",  "type": "prop",    "method": "pixal3d",    "desc": "a round chunky pet food bowl in dusty coral with a cream rim, filled with round berry-shaped treats"},
-    {"id": "potted_plant",  "slot": "room",  "type": "prop",    "method": "pixal3d",    "desc": "a small potted plant: a rounded cream pot with a sage-teal band, three chubby rounded sage-green leaves on short stems"},
-    {"id": "mushroom_lamp", "slot": "room",  "type": "prop",    "method": "pixal3d",    "desc": "a mushroom-shaped table lamp: chubby cream stem, rounded warm honey-yellow softly glowing cap with cream dots"},
-    {"id": "round_rug",     "slot": "room",  "type": "prop",    "method": "pixal3d",    "desc": "a round fluffy rug with a scalloped edge, cream with a sage-teal ring pattern, thick and soft, seen from 3/4 above"}
-  ]
+ "style": "Match the attached STYLE REFERENCE (a soft clay chibi dragon) exactly in rendering style: soft matte clay / felt material, smooth rounded chunky forms, pastel colors, soft studio lighting. Palette: sage green, deep sage-teal, cream, with small accents of dusty coral, soft lavender or warm honey-yellow. Composition: the item alone (no character, no hands, no other props), centered, 3/4 front view from slightly above, whole object fully in frame with generous margin, plain pure white background, no ground shadow, no text, no watermark. Square image.",
+ "items": [
+  {
+   "id": "wizard_hat",
+   "slot": "head",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a small cute wizard hat for this chibi dragon, deep sage-teal fabric with cream star patches and a cream band, slightly floppy tip"
+  },
+  {
+   "id": "flower_crown",
+   "slot": "head",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a small flower crown: a ring of chubby rounded clay flowers in cream, dusty coral and soft lavender with little sage leaves, thick and plump so it reads as one solid ring",
+   "tris": 10000
+  },
+  {
+   "id": "round_glasses",
+   "slot": "face",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a pair of cute round glasses with very thick, chunky rounded warm-brown frames and short stubby temples, no lenses (empty rings), toy-like proportions"
+  },
+  {
+   "id": "bow_tie",
+   "slot": "neck",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a chunky puffy bow tie in dusty coral with cream polka dots and a rounded knot"
+  },
+  {
+   "id": "scarf",
+   "slot": "neck",
+   "type": "skinned",
+   "method": "procedural",
+   "desc": "knitted scarf, sage-teal with cream stripes (built from the body mesh)"
+  },
+  {
+   "id": "sweater",
+   "slot": "torso",
+   "type": "skinned",
+   "method": "procedural",
+   "desc": "cozy cream knit sweater with wing and tail holes (built from the body mesh)"
+  },
+  {
+   "id": "cape",
+   "slot": "back",
+   "type": "skinned",
+   "method": "procedural",
+   "desc": "little lavender cape (built from the body mesh)"
+  },
+  {
+   "id": "bootie",
+   "slot": "feet",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a single cute round chubby bootie slipper, cream knit with a sage-teal cuff and a tiny pompom, very short and round (for stubby chibi feet)"
+  },
+  {
+   "id": "tail_ribbon",
+   "slot": "tail",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a plump soft-lavender ribbon bow tied around a short thick band ring, with two short rounded ribbon tails"
+  },
+  {
+   "id": "star_plush",
+   "slot": "hand",
+   "type": "socket",
+   "method": "pixal3d",
+   "desc": "a small plush toy: a chubby five-point star plushie in warm honey-yellow with a tiny cute face (dot eyes, small smile) and stitched seams"
+  },
+  {
+   "id": "cushion_bed",
+   "slot": "room",
+   "type": "prop",
+   "method": "pixal3d",
+   "desc": "a round plush pet bed: a plump cream rounded rim with a sage-teal soft cushion inside"
+  },
+  {
+   "id": "food_bowl",
+   "slot": "room",
+   "type": "prop",
+   "method": "pixal3d",
+   "desc": "a round chunky pet food bowl in dusty coral with a cream rim, filled with round berry-shaped treats",
+   "tris": 10000
+  },
+  {
+   "id": "potted_plant",
+   "slot": "room",
+   "type": "prop",
+   "method": "pixal3d",
+   "desc": "a small potted plant: a rounded cream pot with a sage-teal band, three chubby rounded sage-green leaves on short stems"
+  },
+  {
+   "id": "mushroom_lamp",
+   "slot": "room",
+   "type": "prop",
+   "method": "pixal3d",
+   "desc": "a mushroom-shaped table lamp: chubby cream stem, rounded warm honey-yellow softly glowing cap with cream dots",
+   "emissive": {
+    "r_min": 0.85,
+    "g_min": 0.6,
+    "b_max": 0.55,
+    "strength": 1.5
+   }
+  },
+  {
+   "id": "round_rug",
+   "slot": "room",
+   "type": "prop",
+   "method": "pixal3d",
+   "desc": "a round fluffy rug with a scalloped edge, cream with a sage-teal ring pattern, thick and soft, seen from 3/4 above",
+   "tris": 4000
+  }
+ ]
 }

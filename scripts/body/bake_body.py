@@ -15,49 +15,39 @@ sc = bpy.context.scene
 src, body = bpy.data.objects["Clean"], bpy.data.objects["Body"]
 src.hide_set(False); src.hide_render = False
 
-# ---- UVs
-for o in sc.objects: o.select_set(o == body)
-bpy.context.view_layer.objects.active = body
-while body.data.uv_layers: body.data.uv_layers.remove(body.data.uv_layers[0])
-body.data.uv_layers.new(name="UVMap")
-bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT")
-# smart project only picks the charts (its planar projection folds on curved tips like the horns);
-# re-unwrap every chart with angle-based flattening (no fold-overs), then pack.
-# Charts that wrap around tubes/cones (horns, tail) still fold, so overlapping regions are re-split with a
-# tighter angle limit until no face overlaps (overlaps make two body parts share texels -> wrong colours).
-import bmesh
-bpy.context.scene.tool_settings.use_uv_select_sync = False
-bpy.context.tool_settings.mesh_select_mode = (False, False, True)
-bpy.ops.uv.smart_project(angle_limit=1.2, island_margin=0.0, area_weight=0.0, scale_to_bounds=False)
-bpy.ops.uv.seams_from_islands()
-bpy.ops.uv.unwrap(method="ANGLE_BASED", fill_holes=True, margin=0.0)
-
-def pack():
-    bpy.ops.mesh.select_all(action="SELECT"); bpy.ops.uv.select_all(action="SELECT")
-    bpy.ops.uv.pack_islands(shape_method="CONCAVE", rotate=True, margin_method="FRACTION", margin=0.003)
-
-def overlapping_faces():
-    bpy.ops.mesh.select_all(action="SELECT"); bpy.ops.uv.select_all(action="DESELECT"); bpy.ops.uv.select_overlap()
-    bm = bmesh.from_edit_mesh(body.data)
-    return [f.index for f in bm.faces if all(l.uv_select_vert for l in f.loops)]
-
-pack()
-for it, angle in enumerate([0.8, 0.55, 0.35, 0.2, 0.1]):
-    bad = overlapping_faces()
-    print(f"uv pass {it}: {len(bad)} overlapping faces", flush=True)
-    if not bad: break
-    bm = bmesh.from_edit_mesh(body.data); bm.faces.ensure_lookup_table()
-    for f in bm.faces: f.select = False
-    for i in bad: bm.faces[i].select = True
-    bmesh.update_edit_mesh(body.data)
-    bpy.ops.mesh.select_more()  # include a ring so the re-split region has clean borders
-    bpy.ops.uv.smart_project(angle_limit=angle, island_margin=0.0, area_weight=0.0, scale_to_bounds=False)
+# ---- UVs: xatlas (few large charts, no overlaps) for triangle meshes; Blender smart-project fallback for quads.
+# Smart-project on the decimated mesh produced hundreds of small islands whose borders showed as dark specks.
+import subprocess, numpy as np
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+me = body.data
+if all(len(p.vertices) == 3 for p in me.polygons):
+    V = np.empty(len(me.vertices) * 3); me.vertices.foreach_get("co", V)
+    F = np.empty(len(me.polygons) * 3, np.int64); me.polygons.foreach_get("vertices", F)
+    tmp_in, tmp_out = os.path.join(TEX, "_xatlas_in.npz"), os.path.join(TEX, "_xatlas_out.npz")
+    np.savez(tmp_in, V=V.reshape(-1, 3), F=F.reshape(-1, 3))
+    py = os.environ.get("XATLAS_PY", os.path.join(ROOT, ".venv", "bin", "python"))
+    print(subprocess.run([py, "-I", os.path.join(ROOT, "scripts", "xatlas_uv.py"), tmp_in, tmp_out, str(SIZE)],
+                         check=True, capture_output=True, text=True).stdout.strip(), flush=True)
+    UV = np.load(tmp_out)["UV"]  # (m,3,2) in polygon/corner order
+    while me.uv_layers: me.uv_layers.remove(me.uv_layers[0])
+    me.uv_layers.new(name="UVMap")
+    me.uv_layers.active.data.foreach_set("uv", UV.reshape(-1).astype(np.float32))  # loops are 3 per tri, in order
+    os.remove(tmp_in); os.remove(tmp_out)
+else:
+    import bmesh
+    for o in sc.objects: o.select_set(o == body)
+    bpy.context.view_layer.objects.active = body
+    while body.data.uv_layers: body.data.uv_layers.remove(body.data.uv_layers[0])
+    body.data.uv_layers.new(name="UVMap")
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.context.scene.tool_settings.use_uv_select_sync = False
+    bpy.context.tool_settings.mesh_select_mode = (False, False, True)
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.smart_project(angle_limit=1.2, island_margin=0.0, area_weight=0.0, scale_to_bounds=False)
     bpy.ops.uv.seams_from_islands()
     bpy.ops.uv.unwrap(method="ANGLE_BASED", fill_holes=True, margin=0.0)
-    pack()
-print(f"uv final: {len(overlapping_faces())} overlapping faces", flush=True)
-bpy.ops.mesh.select_all(action="SELECT")
-bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.ops.uv.pack_islands(shape_method="CONCAVE", rotate=True, margin_method="FRACTION", margin=0.003)
+    bpy.ops.object.mode_set(mode="OBJECT")
 print(f"unwrapped {time.time()-t0:.0f}s", flush=True)
 
 # ---- target material with one image node per map
@@ -68,6 +58,10 @@ for name, noncolor, flt in [("basecolor", False, False), ("normal", True, False)
                              ("roughness", True, False), ("position", True, True)]:
     img = bpy.data.images.new(f"body_{name}", SIZE, SIZE, alpha=False, float_buffer=flt)
     if noncolor: img.colorspace_settings.name = "Non-Color"
+    if name == "normal":  # start flat: texels whose bake ray misses (thin wing rims) stay neutral, not black
+        img.generated_color = (0.5, 0.5, 1.0, 1.0)
+    elif name in ("basecolor", "emission", "roughness"):  # magenta sentinel marks ray misses; transfer_maps.py
+        img.generated_color = (1.0, 0.0, 1.0, 1.0)         # fills only those from the nearest surface
     n = nt.nodes.new("ShaderNodeTexImage"); n.image = img; n.name = name
     imgs[name] = (img, n)
 body.data.materials.clear(); body.data.materials.append(mat)
@@ -75,6 +69,7 @@ body.data.materials.clear(); body.data.materials.append(mat)
 sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 1
 bk = sc.render.bake
 bk.use_selected_to_active = True; bk.cage_extrusion = 0.004; bk.max_ray_distance = 0.03; bk.margin = 12
+bk.margin_type = "ADJACENT_FACES"  # fill seams from neighbouring geometry, not smeared edge texels
 bk.normal_space = "TANGENT"
 for o in sc.objects: o.select_set(o in (src, body))
 bpy.context.view_layer.objects.active = body
@@ -91,11 +86,18 @@ def bake(name, btype, ext="png", **kw):
     img.save(); print(f"baked {name} {time.time()-t0:.0f}s", flush=True)
 
 bk.use_pass_direct = False; bk.use_pass_indirect = False; bk.use_pass_color = True
+bake("normal", "NORMAL")                      # geometry detail from the smooth 'Clean'
+csrc = bpy.data.objects.get("ColorSrc")
+if csrc is not None:                          # colours from a separate (fold-free) source
+    csrc.hide_set(False); csrc.hide_render = False; src.hide_render = True
+    for o in sc.objects: o.select_set(o in (csrc, body))
+    bpy.context.view_layer.objects.active = body
+    print("colour bakes from ColorSrc", flush=True)
 bake("basecolor", "DIFFUSE", pass_filter={"COLOR"})
-bake("normal", "NORMAL")
 bake("emission", "EMIT")
 bake("roughness", "ROUGHNESS")
 bake("position", "POSITION", ext="exr")
+if csrc is not None: csrc.hide_set(True); csrc.hide_render = True
 
 # wire the material for previewing
 nt.links.new(imgs["basecolor"][1].outputs["Color"], bsdf.inputs["Base Color"])
