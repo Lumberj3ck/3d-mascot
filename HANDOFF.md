@@ -10,13 +10,25 @@ sheet) into a 3D model. Approach: generate a strong **baseline with an image-to-
 
 ## 2. Current status (2026-11-08)
 
-**Baseline chosen: `outputs/dragon_mv3_s7.glb`** — Pixal3D multi-view, 3 views (front/side/back), seed 7.
+**Current model: `outputs/dragon_clean.glb`** (+ `dragon_clean.blend`, preview `dragon_clean.png`).
+Smoothed, game-weight version of the raw baseline, made by the clean pipeline (§5a):
+- 80k triangles, single closed manifold shell (0 boundary / 0 non-manifold edges; trimesh reports
+  "not watertight" only because UV seams split vertices), 6 MB.
+- Material `Dragon`: 2048² base colour (shifted toward the concept's sage), roughness, emissive gem
+  (`KHR_materials_emissive_strength` = 3). No normal map yet.
+- Same frame/scale as the raw baseline (Y-up, faces −Z).
+- Known nits: fang slightly blurry after re-bake; Smart-UV packing uses only ~46 % of the texture.
+- Face (eyes/mouth/fang) is **painted into the base colour** — neutral expression only. Expressions,
+  rig, retopology etc. are not done yet → see `docs/ROADMAP.md`.
+
+**Raw source: `outputs/dragon_mv3_s7.glb`** — Pixal3D multi-view, 3 views (front/side/back), seed 7.
 - ✅ Correct face (`:3` mouth + single fang, big eyes), horns, head crest, ear frills, two-tone wings, glowing
   chest gem, cream belly plates, back spine ridge, tail stub, feet.
-- ⚠️ Surface is slightly lumpy/rough (voxel-extraction artifacts) — **next task is smoothing** (see §6).
-- ⚠️ Raw mesh is heavy: ~1M triangles, 4096² PBR texture (webp in GLB), ~33 MB. Not watertight.
+- ⚠️ Lumpy voxel-extraction surface, ~1M triangles, 4096² texture, ~33 MB (fixed by the clean pipeline).
+- `dragon_mv3_s7.png` = flat-shaded nvdiffrast preview; `dragon_mv3_s7_blender.png` = Blender preview
+  (same renderer/lighting as `dragon_clean.png`, for a fair comparison).
 
-Other results in `outputs/` (kept for comparison / parts):
+Other raw results in `outputs/` (kept for comparison / parts):
 
 | File | Views | Verdict |
 |---|---|---|
@@ -101,38 +113,59 @@ Never pass `--low_vram` on the H200 (keeps models on CPU between stages, slower)
 5. natten compiles ~268 CUDA files: ~15 min at 16 vCPU (`NATTEN_CUDA_ARCH=9.0`).
 6. Pixal3D/TRELLIS.2 need `CUDA_HOME=/usr/local/cuda-12.4`.
 
+## 5a. Clean pipeline (local, headless Blender, CPU, ~40 s)
+
+```bash
+PYTHON=.venv/bin/python scripts/clean/run_pipeline.sh outputs/dragon_mv3_s7.glb /tmp/clean \
+    [voxel=0.003] [taubin_iters=10] [target_tris=80000] [tex=2048]
+# -> /tmp/clean/dragon_clean.glb, dragon_clean.blend, baked PNGs, intermediate blends
+```
+Steps (`scripts/clean/`):
+1. `remesh.py` — weld → voxel remesh (adaptivity 0) → Taubin smoothing (λ=0.5, μ=−0.53; numpy only,
+   Blender's Python has no scipy) → decimate to target **triangles** → smooth shading.
+   Keeps the textured high-poly as object `Original`, result as `Clean`.
+2. `bake.py` — Smart UV Project on `Clean`, Cycles *Selected to Active* bake from `Original`
+   (cage 0.006, max ray 0.02): base colour (DIFFUSE colour pass) + roughness → PNGs in the work dir.
+3. `recolor.py` (plain Python, numpy+pillow) — shifts green texels toward the concept sage (linear-RGB
+   ratio 1.508/1.371/1.64, measured from renders vs the sheet; cream/eyes/mouth/gem masked out) and builds
+   the gem emissive map.
+4. `finalize.py` — wires sage base colour + emission (strength 3) into the material, deletes `Original`,
+   packs textures, saves `.blend`, exports GLB.
+
+History: steps 1–3 were written by another agent session; `outputs/dragon_clean.*` are its artifacts
+(exact voxel/iteration params not recorded). This session made the scripts run under `blender -b -P`,
+removed the scipy dependency, fixed a hard-coded texture path, fixed the decimate target (it counted
+quads, giving 2× the requested triangles), and added `finalize.py` + `run_pipeline.sh`. A re-run with the
+defaults above reproduces the committed result visually.
+
+Preview any GLB: `blender -b --factory-startup -P scripts/render_blender.py -- in.glb out.png 512 32`
+(strip: front, left, back, right, 3/4; ~13 s).
+
 ## 5. Local machine
-- Blender is installed: `/usr/bin/blender` (can be run headless: `blender -b -P script.py`).
+- Blender 5.2 is installed: `/usr/bin/blender` (headless: `blender -b --factory-startup -P script.py -- args`).
+- Downloaded/third-party `.blend` files: inspect with `--disable-autoexec` (blend files can embed scripts).
 - Python tooling via `uv`; local venv `.venv/` (gitignored) with scipy, pillow, numpy, trimesh:
   `uv venv .venv && uv pip install --python .venv/bin/python scipy pillow numpy trimesh`.
 - Viewer: `python -m http.server` in repo root → http://localhost:8000/viewer/ (lists every GLB in `outputs/`).
 - `scripts/prep_views.py inputs/raw/turnaround.png inputs/mv_dragon` regenerates the matted views
   (bbox constants for the sheet are hard-coded at the top).
 
-## 6. Next steps (agreed direction)
+## 6. Next steps
 
-1. **Smooth the baseline** (user's current request — "looks a bit rough"). Note the preview PNGs use flat
-   per-face shading which exaggerates roughness; model-viewer/Blender smooth-shade. Real roughness comes from
-   voxel extraction. Options, low → high effort:
-   - Taubin / Laplacian smoothing (Blender *Laplacian Smooth* or *Corrective Smooth* modifier, or
-     `trimesh.smoothing.filter_taubin`). Moves vertices only → UVs/texture stay valid. Eyes/mouth/fang are
-     texture, so they survive.
-   - **Recommended:** voxel remesh → smooth → decimate to ~50–100k tris → new UV unwrap (Smart UV Project) →
-     bake base colour from the original mesh (Cycles, *Selected to Active*, small cage extrusion) → export GLB.
-     Gives a clean, light, animation-ready base matching the soft clay look of the sheet.
-   - Do this locally in headless Blender — no GPU VM needed.
-2. Optional: re-run Pixal3D with more seeds (cheap: ~4 min each) if a cleaner face/body is wanted.
-3. Expressions from `inputs/raw/expressions.png`: face texture swaps (simplest) or shape keys for eyes/mouth.
-4. Rigging / animation (Rigify or Mixamo-style humanoid), material tweak (emissive chest gem).
+Smoothing is **done** (§5a). The product vision and full plan — rig, facial expressions, wardrobe/clothes
+fitting, rooms/items, premium web rendering — live in **`docs/ROADMAP.md`**. Start there.
 
 ## 7. Repo map
 ```
 inputs/raw/               original sheets (turnaround.png, expressions.png)
 inputs/mv_dragon/         Pixal3D multi-view input (4 matted views + transforms.json)
 inputs/front_single.png   single-view input
-outputs/                  GLBs + preview strips + ICP transform
+outputs/                  dragon_clean.* (current), raw Pixal3D GLBs, previews, ICP transform
 scripts/prep_views.py     sheet → matted posed views
 scripts/render_glb.py     headless GLB preview (nvdiffrast CUDA; runs on the VM)
+scripts/render_blender.py headless GLB preview (local Blender, Cycles CPU, real materials)
+scripts/clean/            raw GLB → clean game-weight GLB pipeline (§5a)
+docs/ROADMAP.md           product vision + phased plan
 infra/instance.example.json  Nebius VM spec template
 infra/install.sh          env build script (see gotchas above for the fixes it lacks)
 infra/run.sh              inference wrapper with GPU-utilisation logging

@@ -9,7 +9,8 @@ Image-to-3D baseline for the dragon mascot, generated with [Pixal3D](https://git
 
 | File | Input | Notes |
 |---|---|---|
-| **`dragon_mv3_s7.glb`** | front + side + back, seed 7 | **Best baseline** — correct `:3` mouth + fang, faithful back/side |
+| **`dragon_clean.glb`** | cleaned `dragon_mv3_s7` | **Current model** — smoothed, 80k tris, 2K sage textures + emissive gem, 6 MB (`scripts/clean/`) |
+| `dragon_mv3_s7.glb` | front + side + back, seed 7 | Raw best Pixal3D output — correct `:3` mouth + fang, faithful back/side |
 | `dragon_mv3_s42.glb` | front + side + back, seed 42 | Good, small stray marks near eyes |
 | `dragon_mv4.glb` | + mirrored side as 4th view | Body good, mouth broken (mirrored view puts the fang on the wrong side) |
 | `dragon_single.glb` | front only | Face good, invents a long tail / plain back |

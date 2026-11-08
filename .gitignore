@@ -10,3 +10,4 @@ __pycache__/
 
 # Nebius resource IDs / keys (use infra/instance.example.json as template)
 infra/instance.json
+*.blend1
