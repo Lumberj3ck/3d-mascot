@@ -173,10 +173,51 @@ A good first milestone, demoable end to end: **Character Lab showing the dragon 
 switching between the 6 expressions, spring tail/ears, wearing one hat (socket) and one scarf (skinned + spring),
 rendered with the premium lighting setup.**
 
+## Decisions (2026-11-08)
+
+- **Look:** soft-clay PBR, as in the concept sheet.
+- **Platform:** web only (mobile-first budgets still apply).
+- **Concept scope:** **15 items**.
+- **No human 3D artist.** Everything is automated (Claude + Blender scripts + generative models). So:
+  - Retopology: automatic (symmetrize → quad remesh), validated by renders and deformation tests.
+  - Face: the design is flat vector shapes (dot eyes, `^ ^`, `:3`), so the decal atlas is drawn
+    procedurally (SVG → PNG). This fits an artist-free pipeline perfectly.
+  - Animation: scripted keyframes (squash/stretch, bounce, hop, wave, yawn) + procedural runtime
+    motion (breathing, blink, look-at, spring bones).
+  - **Soft garments are generated from the body mesh itself** (offset shell of the torso = sweater,
+    tube around the neck = scarf, back panel = cape). They fit by construction and inherit the body's
+    skin weights. Image-to-3D is used for rigid items and props, where it shines.
+- **Item pipeline:** style-locked concept image (OpenAI image model, as used by Codex) → Pixal3D
+  (single view, or multi-view when the image model gives a clean turnaround) → `scripts/clean/` →
+  validate → attach to socket / place in room.
+- **Character format:** VRM 1.0 proposed (see below), pending confirmation.
+
+## Concept item set (15)
+
+| # | Item | Slot / type | Made by |
+|---|---|---|---|
+| 1 | Wizard hat (with horn gaps) | head · socket | image → Pixal3D |
+| 2 | Flower crown | head · socket | image → Pixal3D |
+| 3 | Round glasses | face · socket | image → Pixal3D |
+| 4 | Bow tie | neck · socket | image → Pixal3D |
+| 5 | Knitted scarf | neck · skinned + springs | procedural from body |
+| 6 | Cozy sweater (wing + tail holes) | torso · skinned | procedural from body |
+| 7 | Little cape | back · skinned + springs | procedural from body |
+| 8 | Booties | feet · socket ×2 | image → Pixal3D |
+| 9 | Tail ribbon | tail · socket | image → Pixal3D |
+| 10 | Plush toy (held) | hand · socket | image → Pixal3D |
+| 11 | Cushion bed | room prop (sleep) | image → Pixal3D |
+| 12 | Food bowl | room prop (eat) | image → Pixal3D |
+| 13 | Potted plant | room prop | image → Pixal3D |
+| 14 | Mushroom lamp (emissive) | room prop | image → Pixal3D |
+| 15 | Round rug | room prop | image → Pixal3D |
+
+Room shell (floor/walls/window) is procedural and not counted. GPU estimate: 12 Pixal3D runs × ~4 min
+(+ retries) ≈ 1–2 h on the H200.
+
 ## Open questions (product decisions)
 
-1. Platforms: mobile web only, desktop too, or native apps later (affects budgets)?
-2. Look: soft-clay PBR (as concept) vs. toon/cel shading?
-3. Catalogue scale at launch (10 items vs. 200 decides how much to automate)?
-4. Budget for a human 3D artist for retopo/weights/key animations, or Claude-only first pass?
+1. ~~Platforms~~ → web. 2. ~~Look~~ → soft clay. 3. ~~Catalogue~~ → 15 items. 4. ~~Artist~~ → none.
 5. Adopt VRM 1.0 as the character format? (Recommended.)
+6. Image generation access: an OpenAI API key so Claude can batch-generate the concept images, or the
+   user generates them (Codex/ChatGPT) from the provided prompt template and drops them in `inputs/items/`?
