@@ -207,6 +207,7 @@ outputs/                  dragon_clean.* (current), raw Pixal3D GLBs, previews, 
 scripts/prep_views.py     sheet → matted posed views
 scripts/render_glb.py     headless GLB preview (nvdiffrast CUDA; runs on the VM)
 scripts/render_blender.py headless GLB preview (local Blender, Cycles CPU, real materials)
+scripts/tools/            closeup.py (zoomed artifact checks), item_sheet.py (all items in one image)
 scripts/clean/            raw GLB → clean game-weight GLB pipeline (§5a)
 docs/ROADMAP.md           product vision + phased plan
 infra/instance.example.json  Nebius VM spec template
