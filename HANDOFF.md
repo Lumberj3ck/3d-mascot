@@ -8,25 +8,40 @@ Turn the 2D character sheets in `inputs/raw/` (a sage-green chibi dragon: turnar
 sheet) into a 3D model. Approach: generate a strong **baseline with an image-to-3D model (Pixal3D)**, then
 **edit it** (smoothing, cleanup, expressions, rigging) — mainly in Blender.
 
-## 2. Current status (2026-11-08)
+## 2. Current status (2026-11-08, end of session 2)
 
-**Current model: `outputs/dragon_clean.glb`** (+ `dragon_clean.blend`, preview `dragon_clean.png`).
-Smoothed, game-weight version of the raw baseline, made by the clean pipeline (§5a):
-- 80k triangles, single closed manifold shell (0 boundary / 0 non-manifold edges; trimesh reports
-  "not watertight" only because UV seams split vertices), 6 MB.
-- Material `Dragon`: 2048² base colour (shifted toward the concept's sage), roughness, emissive gem
-  (`KHR_materials_emissive_strength` = 3). No normal map yet.
-- Same frame/scale as the raw baseline (Y-up, faces −Z).
-- Known nits: fang slightly blurry after re-bake; Smart-UV packing uses only ~46 % of the texture.
-- Face (eyes/mouth/fang) is **painted into the base colour** — neutral expression only. Expressions,
-  rig, retopology etc. are not done yet → see `docs/ROADMAP.md`.
+### Dragon
+**Production body: `outputs/body/dragon_body.glb`** (+ `.blend`, previews `dragon_body.png`, `_wire.png`) — the
+asset to rig/ship. 30k triangles, xatlas UVs (213 charts, 66 % use), 2048² base colour (sage) + tangent normal
+map + roughness + emissive gem (strength 3). Y-up, faces −Z. Rebuild: `scripts/body/build_dragon_body.sh <dir>` (§5b).
+Known nit: one pinhead dark speck on the right hand.
 
-**Raw source: `outputs/dragon_mv3_s7.glb`** — Pixal3D multi-view, 3 views (front/side/back), seed 7.
-- ✅ Correct face (`:3` mouth + single fang, big eyes), horns, head crest, ear frills, two-tone wings, glowing
-  chest gem, cream belly plates, back spine ridge, tail stub, feet.
-- ⚠️ Lumpy voxel-extraction surface, ~1M triangles, 4096² texture, ~33 MB (fixed by the clean pipeline).
-- `dragon_mv3_s7.png` = flat-shaded nvdiffrast preview; `dragon_mv3_s7_blender.png` = Blender preview
-  (same renderer/lighting as `dragon_clean.png`, for a fair comparison).
+Chain: `inputs/mv_dragon` (front view with the peeking tail painted out, `scripts/edit_front_view.py`) →
+Pixal3D multi-view seed 42 → **raw `outputs/dragon_mv3nt_s42.glb`** → clean pipeline (§5a) →
+**smoothed `outputs/dragon_clean.glb`** (80k) → body pipeline (§5b) → production body.
+
+Why the regeneration: the turnaround's front view shows the tail poking out beside the right leg; Pixal3D turned
+it into a stray forward-pointing hip spike (in all older outputs). Patching it on the mesh failed repeatedly;
+removing it from the input image fixed it at the source. `outputs/alt/dragon_mv3nt_s7.glb` = seed 7 (red gem).
+
+Face (eyes/mouth/fang) is still **painted into the base colour** — neutral expression only.
+
+### Rig — WIP (`scripts/body/rig.py`, untracked output)
+29 bones (VRM humanoid names + tail, wings, ears), automatic heat weights constrained per body region (wings
+only follow wing bones, ears only ear bones, collar only trunk…), test-pose strip rendered with world-axis
+rotations. Status: rest/sad/step look fine; **arm raises (>~40°) wrinkle the flank/belly** — the stubby arms
+grow out of the belly so region masks can't separate arm skin from flank skin. Next: finer arm weights
+(geometric arm segmentation or envelope blend) and a chibi-sized arm range; then VRM export.
+
+### Items — 12 generated + processed (`outputs/items/*.glb`, sheet `outputs/items/items_sheet.png`)
+Concepts generated with Codex CLI image generation (`scripts/items/gen_concepts.py`), Pixal3D single-view on the
+VM (`infra/batch_items.sh`), then `scripts/items/process_item.py` per item (see §5c). All 12 usable at concept
+quality. Known issues: tail_ribbon bow has dark marbling; flower_crown has some tangled dark bits inside; food
+bowl has a small dark notch at the paw. Procedural garments (scarf, sweater, cape) not built yet.
+
+### Older raw results (kept for comparison)
+**`outputs/dragon_mv3_s7.glb`** — previous baseline (has the hip spike). `dragon_mv3_s7_blender.png` = Blender
+preview.
 
 Other raw results in `outputs/` (kept for comparison / parts):
 
@@ -141,6 +156,34 @@ defaults above reproduces the committed result visually.
 Preview any GLB: `blender -b --factory-startup -P scripts/render_blender.py -- in.glb out.png 512 32`
 (strip: front, left, back, right, 3/4; ~13 s).
 
+## 5b. Body pipeline (local, CPU, ~2 min) — `scripts/body/`
+`build_dragon_body.sh <work_dir>` = `RETOPO=decimate COLOR_SRC=<raw> RECOLOR=1 run_body.sh <clean.glb> <dir> 30000`:
+1. `retopo.py` — collapse-decimate the smoothed mesh to 30k tris (`quadriflow` mode exists but folds the
+   paper-thin wing membranes into jagged dark rims — don't use it for the dragon). Imports the raw mesh as
+   `ColorSrc`.
+2. `bake_body.py` — **xatlas** UVs (`scripts/xatlas_uv.py`, runs in `.venv`); smart-project fragmented the belly
+   into hundreds of islands whose borders showed as dark specks. Normal map ray-baked from the smoothed mesh;
+   base colour/emission/roughness ray-baked from the **raw** mesh (the smoothed mesh hides folded triangles in
+   grooves that bake as dark specks). Normal maps start flat; colour maps start magenta = "ray missed".
+3. `transfer_maps.py` — keeps ray-baked texels, nearest-surface fallback only for misses, dilates islands.
+4. `recolor.py` (RECOLOR=1) — sage shift + gem emissive; `export_glb.py` packs + exports.
+`fix_region.py` (smooth / normal-flatten / despike a sphere) is kept for local repairs; not used now.
+
+## 5c. Item pipeline — `scripts/items/process_item.py <id>` (Blender; ~1–6 min CPU each)
+`level.py` (once, writes `outputs/items/level.json`): trimesh stable resting pose closest to the camera frame +
+symmetry yaw (overrides: `NO_LEVEL` plush, `STAND` bow tie). Per item (`inputs/items/items.json` options):
+- cleanup `remesh`: default = smooth + decimate the raw surface (thin shells: hat, bow tie, plush, plant, rug);
+  `"voxel"` = voxel remesh first (chunky items: crown, glasses, bed, lamp, ribbon); `"meshlab"` = MeshLab quadric
+  decimation (`scripts/items/meshlab_decimate.py`, needs `pymeshlab` in `.venv`; open/non-manifold raws: bootie,
+  bowl). Blender collapse-decimation of raw Pixal3D items to ~1 % shatters them into shards; non-manifold edges
+  are split first; floating debris removed.
+- xatlas UVs; normal + colour **ray-baked** from the raw mesh (`cage_rel`: raise to ~0.02–0.025 when the cleaned
+  surface sinks below the raw outer shell, else rays hit Pixal3D's dark inner layer → black blotches);
+  nearest-surface fallback for misses.
+- colour matched to the concept (per-channel linear gain from a concept-like render, capped 0.6–2.2);
+  optional `emissive` mask (mushroom lamp); pivot bottom-centre for props, centre for wearables.
+VM batch: `infra/process_items_vm.sh [ids]` (Blender 5.2.3 tarball + xatlas in the conda env; set `XATLAS_PY`).
+
 ## 5. Local machine
 - Blender 5.2 is installed: `/usr/bin/blender` (headless: `blender -b --factory-startup -P script.py -- args`).
 - Downloaded/third-party `.blend` files: inspect with `--disable-autoexec` (blend files can embed scripts).
@@ -152,8 +195,8 @@ Preview any GLB: `blender -b --factory-startup -P scripts/render_blender.py -- i
 
 ## 6. Next steps
 
-Smoothing is **done** (§5a). The product vision and full plan — rig, facial expressions, wardrobe/clothes
-fitting, rooms/items, premium web rendering — live in **`docs/ROADMAP.md`**. Start there.
+Done: smoothing, production body, 12 concept items. Next (see `docs/ROADMAP.md`): finish rig weights (arms) →
+VRM 1.0 export → face decal atlas + expressions → procedural garments (scarf/sweater/cape) → Character Lab web app.
 
 ## 7. Repo map
 ```

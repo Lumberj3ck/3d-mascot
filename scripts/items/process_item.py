@@ -50,9 +50,40 @@ clean = src.copy(); clean.data = src.data.copy(); clean.name = IID
 bpy.context.scene.collection.objects.link(clean)
 clean.data.materials.clear()
 while clean.data.uv_layers: clean.data.uv_layers.remove(clean.data.uv_layers[0])
-# No voxel remesh for items: Pixal3D builds thin parts (hat cone, brim, ribbons) as paper-thin double shells
-# that a voxel remesh shatters. Smooth the welded original surface and decimate it directly instead.
-nf = bl.remesh_smooth_decimate(clean, 0, taubin_iters=6, target_tris=TRIS, min_verts=60)
+# Two cleanup modes (items.json "remesh"):
+#  - default: smooth + decimate the welded original surface. Needed for paper-thin parts (hat cone/brim, bow)
+#    that a voxel remesh shatters.
+#  - "voxel": voxel remesh first (closed, clean surface), then smooth + decimate. Needed for chunky items: collapse
+#    decimation of Pixal3D's raw double-layered surface down to ~1% shatters them into crystal-like shards.
+if cfg.get("remesh") == "meshlab":
+    # MeshLab quadric decimation of the raw mesh (run in the project .venv), then the same level/pivot transform
+    import subprocess
+    py = os.environ.get("XATLAS_PY", os.path.join(ROOT, ".venv", "bin", "python"))
+    ml = os.path.join(WORK, f"{IID}_meshlab.glb")
+    r = subprocess.run([py, "-I", os.path.join(ROOT, "scripts/items/meshlab_decimate.py"),
+                        os.path.join(ROOT, "outputs/items/raw", IID + ".glb"), ml, str(TRIS)], check=True, capture_output=True, text=True)
+    print("  " + r.stdout.strip().splitlines()[-1], flush=True)
+    bpy.data.objects.remove(clean, do_unlink=True)
+    before = set(bpy.context.scene.objects)
+    bpy.ops.import_scene.gltf(filepath=ml)
+    clean = [o for o in bpy.context.scene.objects if o not in before and o.type == "MESH"][0]
+    clean.name = IID
+    clean.matrix_world = C @ M @ C.inverted() @ clean.matrix_world
+    bl.select_only(clean); bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    clean.data.transform(Matrix.Translation(Vector(-pivot)))
+    clean.data.materials.clear()
+    import bmesh
+    bm_ = bmesh.new(); bm_.from_mesh(clean.data)
+    bmesh.ops.recalc_face_normals(bm_, faces=bm_.faces)  # consistent, outward-facing normals
+    bm_.to_mesh(clean.data); bm_.free()
+    for p_ in clean.data.polygons: p_.use_smooth = True
+    nf = len(clean.data.polygons)
+elif cfg.get("remesh") == "voxel":
+    voxel = float(np.linalg.norm(size)) * float(cfg.get("voxel_rel", 0.004))
+    nf = bl.remesh_smooth_decimate(clean, voxel, taubin_iters=10, target_tris=TRIS, min_verts=int(cfg.get("min_verts", 200)))
+    print(f"[{IID}] voxel {voxel:.4f}", flush=True)
+else:
+    nf = bl.remesh_smooth_decimate(clean, 0, taubin_iters=6, target_tris=TRIS, min_verts=60)
 print(f"[{IID}] cleaned: {nf} tris", flush=True)
 ov = bl.unwrap_no_overlap(clean)
 print(f"[{IID}] unwrapped, overlapping faces left: {ov}", flush=True)
@@ -60,8 +91,11 @@ print(f"[{IID}] unwrapped, overlapping faces left: {ov}", flush=True)
 # ---------------------------------------------------------------- bake + transfer
 mat, imgs = bl.add_bake_material(clean, TEX, name=IID, maps=("basecolor", "normal", "roughness", "emission"))
 diag = float(np.linalg.norm(size))
-bl.bake_normal(src, clean, imgs, os.path.join(WORK, f"{IID}_normal.png"), cage=diag * 0.004, max_ray=diag * 0.03)
-P, valid = bl.transfer_maps(src, clean, imgs, WORK, IID)
+cage_rel = float(cfg.get("cage_rel", 0.004))  # see colour transfer below: rays must start outside the raw shell
+bl.bake_normal(src, clean, imgs, os.path.join(WORK, f"{IID}_normal.png"), cage=diag * cage_rel, max_ray=diag * max(0.03, cage_rel * 2.5))
+# cage must start OUTSIDE the raw outer shell (decimated surfaces can sink below it; rays starting inside hit
+# Pixal3D's dark inner layer). items.json "cage_rel" raises it for such items.
+P, valid = bl.transfer_maps(src, clean, imgs, WORK, IID, cage=diag * cage_rel, max_ray=diag * max(0.03, cage_rel * 2.5))
 print(f"[{IID}] baked + transferred", flush=True)
 
 # ---------------------------------------------------------------- color match to concept

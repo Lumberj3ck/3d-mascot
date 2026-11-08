@@ -16,3 +16,8 @@ infra/instance.json
 inputs/items/concepts/logs/
 # partial item outputs are committed once the item pipeline is done
 outputs/items/raw/
+
+# item intermediates / local blends
+outputs/items/work/
+outputs/items/*.blend
+scripts/clean/dilate_textures.py

@@ -1,0 +1,135 @@
+[SPARSE] Conv backend: flex_gemm; Attention backend: flash_attn
+[Pipeline] Loading from TencentARC/Pixal3D...
+[ATTENTION] Using backend: flash_attn
+[ImageCond] Building DinoV3ProjFeatureExtractor models...
+[NAF] Pre-loading NAF upsampler model...
+[Pipeline] Standard mode (all models on GPU).
+[Inference] Processing image: /home/mascot/items/round_glasses.png
+[MoGe-2] Loading model for camera estimation...
+[Inference] Estimating camera parameters...
+  camera_angle_x=0.6796, distance=1.4143
+[Inference] Running 3D generation pipeline...
+[Inference] Using pipeline_type=1536_cascade
+Sampling sparse structure (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling sparse structure (proj):   8%|▊         | 1/12 [00:00<00:01,  5.74it/s]Sampling sparse structure (proj):  25%|██▌       | 3/12 [00:00<00:01,  8.41it/s]Sampling sparse structure (proj):  42%|████▏     | 5/12 [00:00<00:00,  9.23it/s]Sampling sparse structure (proj):  50%|█████     | 6/12 [00:00<00:00,  9.42it/s]Sampling sparse structure (proj):  67%|██████▋   | 8/12 [00:00<00:00,  9.67it/s]Sampling sparse structure (proj):  75%|███████▌  | 9/12 [00:00<00:00,  9.74it/s]Sampling sparse structure (proj):  92%|█████████▏| 11/12 [00:01<00:00, 10.93it/s]Sampling sparse structure (proj): 100%|██████████| 12/12 [00:01<00:00, 10.26it/s]
+Sampling shape SLat (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling shape SLat (proj):   8%|▊         | 1/12 [00:00<00:01,  6.75it/s]Sampling shape SLat (proj):  17%|█▋        | 2/12 [00:00<00:01,  7.57it/s]Sampling shape SLat (proj):  25%|██▌       | 3/12 [00:00<00:01,  7.91it/s]Sampling shape SLat (proj):  33%|███▎      | 4/12 [00:00<00:00,  8.14it/s]Sampling shape SLat (proj):  42%|████▏     | 5/12 [00:00<00:00,  8.21it/s]Sampling shape SLat (proj):  50%|█████     | 6/12 [00:00<00:00,  8.24it/s]Sampling shape SLat (proj):  58%|█████▊    | 7/12 [00:00<00:00,  8.23it/s]Sampling shape SLat (proj):  67%|██████▋   | 8/12 [00:00<00:00,  8.24it/s]Sampling shape SLat (proj):  75%|███████▌  | 9/12 [00:01<00:00,  8.25it/s]Sampling shape SLat (proj):  92%|█████████▏| 11/12 [00:01<00:00, 10.76it/s]Sampling shape SLat (proj): 100%|██████████| 12/12 [00:01<00:00,  9.28it/s]
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^9, 1024, 1024, 27)
+Configs: [{'SPLITK': 2}, {'SPLITK': 4}, {'SPLITK': 8}, {'SPLITK': 16}, {'SPLITK': 32}, {'SPLITK': 64}]
+Config {'SPLITK': 2}: 0.00031850337982177737 seconds
+Config {'SPLITK': 4}: 0.00018224716186523437 seconds
+Config {'SPLITK': 8}: 0.00018680095672607422 seconds
+Config {'SPLITK': 16}: 0.0001950502395629883 seconds
+Config {'SPLITK': 32}: 0.00023429393768310548 seconds
+Config {'SPLITK': 64}: 0.0003126382827758789 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^9, 1024, 1024, 27): {'SPLITK': 4}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^9, 1024, 4096, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}, {'SPLITK': 4}, {'SPLITK': 8}, {'SPLITK': 16}]
+Config {'SPLITK': 1}: 0.0006689548492431641 seconds
+Config {'SPLITK': 2}: 0.0006623983383178711 seconds
+Config {'SPLITK': 4}: 0.0006848335266113281 seconds
+Config {'SPLITK': 8}: 0.0006869792938232422 seconds
+Config {'SPLITK': 16}: 0.0007614612579345704 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^9, 1024, 4096, 27): {'SPLITK': 2}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^11, 512, 512, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}, {'SPLITK': 4}, {'SPLITK': 8}, {'SPLITK': 16}, {'SPLITK': 32}]
+Config {'SPLITK': 1}: 0.00023221969604492188 seconds
+Config {'SPLITK': 2}: 0.00017838478088378907 seconds
+Config {'SPLITK': 4}: 0.00016930103302001954 seconds
+Config {'SPLITK': 8}: 0.0001829385757446289 seconds
+Config {'SPLITK': 16}: 0.00022532939910888672 seconds
+Config {'SPLITK': 32}: 0.0003120660781860352 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^11, 512, 512, 27): {'SPLITK': 4}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^11, 512, 2048, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}, {'SPLITK': 4}, {'SPLITK': 8}]
+Config {'SPLITK': 1}: 0.000569009780883789 seconds
+Config {'SPLITK': 2}: 0.0006035089492797852 seconds
+Config {'SPLITK': 4}: 0.0006988048553466797 seconds
+Config {'SPLITK': 8}: 0.0008063793182373046 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^11, 512, 2048, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^14, 256, 256, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}, {'SPLITK': 4}, {'SPLITK': 8}]
+Config {'SPLITK': 1}: 0.0002140522003173828 seconds
+Config {'SPLITK': 2}: 0.00023005008697509765 seconds
+Config {'SPLITK': 4}: 0.00021064281463623047 seconds
+Config {'SPLITK': 8}: 0.00027790069580078123 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^14, 256, 256, 27): {'SPLITK': 4}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^14, 256, 1024, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}]
+Config {'SPLITK': 1}: 0.0006990909576416015 seconds
+Config {'SPLITK': 2}: 0.0006747245788574219 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^14, 256, 1024, 27): {'SPLITK': 2}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^16, 128, 128, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}, {'SPLITK': 4}]
+Config {'SPLITK': 1}: 0.00022752285003662108 seconds
+Config {'SPLITK': 2}: 0.00031409263610839846 seconds
+Config {'SPLITK': 4}: 0.0003683805465698242 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^16, 128, 128, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^16, 128, 512, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^16, 128, 512, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^18, 64, 64, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^18, 64, 64, 27): {'SPLITK': 1}
+Sampling HR shape SLat (proj, 1536):   0%|          | 0/12 [00:00<?, ?it/s]Sampling HR shape SLat (proj, 1536):   8%|▊         | 1/12 [00:01<00:11,  1.04s/it]Sampling HR shape SLat (proj, 1536):  17%|█▋        | 2/12 [00:01<00:08,  1.16it/s]Sampling HR shape SLat (proj, 1536):  25%|██▌       | 3/12 [00:02<00:06,  1.47it/s]Sampling HR shape SLat (proj, 1536):  33%|███▎      | 4/12 [00:02<00:04,  1.67it/s]Sampling HR shape SLat (proj, 1536):  42%|████▏     | 5/12 [00:03<00:03,  1.81it/s]Sampling HR shape SLat (proj, 1536):  50%|█████     | 6/12 [00:03<00:03,  1.90it/s]Sampling HR shape SLat (proj, 1536):  58%|█████▊    | 7/12 [00:04<00:02,  1.97it/s]Sampling HR shape SLat (proj, 1536):  67%|██████▋   | 8/12 [00:04<00:01,  2.02it/s]Sampling HR shape SLat (proj, 1536):  75%|███████▌  | 9/12 [00:05<00:01,  2.05it/s]Sampling HR shape SLat (proj, 1536):  83%|████████▎ | 10/12 [00:05<00:00,  2.45it/s]Sampling HR shape SLat (proj, 1536):  92%|█████████▏| 11/12 [00:05<00:00,  2.97it/s]Sampling HR shape SLat (proj, 1536): 100%|██████████| 12/12 [00:05<00:00,  3.26it/s]Sampling HR shape SLat (proj, 1536): 100%|██████████| 12/12 [00:05<00:00,  2.10it/s]
+Sampling texture SLat (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling texture SLat (proj):   8%|▊         | 1/12 [00:00<00:04,  2.23it/s]Sampling texture SLat (proj):  17%|█▋        | 2/12 [00:00<00:04,  2.14it/s]Sampling texture SLat (proj):  25%|██▌       | 3/12 [00:01<00:04,  2.10it/s]Sampling texture SLat (proj):  33%|███▎      | 4/12 [00:01<00:03,  2.15it/s]Sampling texture SLat (proj):  42%|████▏     | 5/12 [00:02<00:03,  2.11it/s]Sampling texture SLat (proj):  50%|█████     | 6/12 [00:02<00:02,  2.13it/s]Sampling texture SLat (proj):  58%|█████▊    | 7/12 [00:03<00:02,  2.13it/s]Sampling texture SLat (proj):  67%|██████▋   | 8/12 [00:03<00:01,  2.14it/s]Sampling texture SLat (proj):  75%|███████▌  | 9/12 [00:04<00:01,  2.12it/s]Sampling texture SLat (proj):  83%|████████▎ | 10/12 [00:04<00:00,  2.15it/s]Sampling texture SLat (proj):  92%|█████████▏| 11/12 [00:05<00:00,  2.15it/s]Sampling texture SLat (proj): 100%|██████████| 12/12 [00:05<00:00,  2.16it/s]Sampling texture SLat (proj): 100%|██████████| 12/12 [00:05<00:00,  2.14it/s]
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^13, 1024, 1024, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}, {'SPLITK': 4}]
+Config {'SPLITK': 1}: 0.0027683734893798827 seconds
+Config {'SPLITK': 2}: 0.003123307228088379 seconds
+Config {'SPLITK': 4}: 0.0029399633407592774 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^13, 1024, 1024, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^13, 1024, 4096, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^13, 1024, 4096, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^15, 512, 512, 27)
+Configs: [{'SPLITK': 1}, {'SPLITK': 2}]
+Config {'SPLITK': 1}: 0.0031430721282958984 seconds
+Config {'SPLITK': 2}: 0.003151273727416992 seconds
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^15, 512, 512, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^15, 512, 2048, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^15, 512, 2048, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^17, 256, 256, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^17, 256, 256, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^17, 256, 1024, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^17, 256, 1024, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^19, 128, 128, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^19, 128, 128, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^19, 128, 512, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^19, 128, 512, 27): {'SPLITK': 1}
+Running autotuning for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^21, 64, 64, 27)
+Configs: [{'SPLITK': 1}]
+Best config for sparse_submanifold_conv_fwd_masked_implicit_gemm_splitk with key (2^21, 64, 64, 27): {'SPLITK': 1}
+[Inference] Extracting GLB...
+Extracting GLB:   0%|          | 0/6 [00:00<?, ?it/s]Building BVH:  17%|█▋        | 1/6 [00:00<00:00, 14.75it/s]Building BVH:  33%|███▎      | 2/6 [00:03<00:07,  1.78s/it]Cleaning mesh:  33%|███▎      | 2/6 [00:03<00:07,  1.78s/it]/home/mascot/miniconda3/envs/trellis2/lib/python3.10/site-packages/cumesh/remeshing.py:220: UserWarning: Using torch.cross without specifying the dim arg is deprecated.
+Please either pass the dim explicitly or simply use torch.linalg.cross.
+The default value of dim will change to agree with that of linalg.cross in a future release. (Triggered internally at /pytorch/aten/src/ATen/native/Cross.cpp:62.)
+  normals0 = torch.cross(mesh_vertices[atempt_triangles_0[:, 1]] - mesh_vertices[atempt_triangles_0[:, 0]], mesh_vertices[atempt_triangles_0[:, 2]] - mesh_vertices[atempt_triangles_0[:, 0]])
+Cleaning mesh:  50%|█████     | 3/6 [00:05<00:05,  1.84s/it]Parameterizing new mesh:  50%|█████     | 3/6 [00:05<00:05,  1.84s/it]Parameterizing new mesh:  67%|██████▋   | 4/6 [00:29<00:20, 10.01s/it]Sampling attributes:  67%|██████▋   | 4/6 [00:29<00:20, 10.01s/it]    Sampling attributes:  83%|████████▎ | 5/6 [00:31<00:07,  7.45s/it]Finalizing mesh:  83%|████████▎ | 5/6 [00:31<00:07,  7.45s/it]    Finalizing mesh: 100%|██████████| 6/6 [00:57<00:00, 13.65s/it]Finalizing mesh: 100%|██████████| 6/6 [00:57<00:00,  9.67s/it]
+[Done] GLB saved to: /home/mascot/runs/items/round_glasses.glb
+	Command being timed: "python inference.py --image /home/mascot/items/round_glasses.png --output /home/mascot/runs/items/round_glasses.glb --seed 42"
+	User time (seconds): 398.11
+	System time (seconds): 19.25
+	Percent of CPU this job got: 181%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:49.59
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 19012236
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 9
+	Minor (reclaiming a frame) page faults: 8949220
+	Voluntary context switches: 991100
+	Involuntary context switches: 9194
+	Swaps: 0
+	File system inputs: 10384
+	File system outputs: 113344
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -176,6 +176,7 @@ def add_bake_material(obj, size, name="Baked", maps=("basecolor", "normal", "rou
         img = bpy.data.images.new(f"{name}_{m}", size, size, alpha=False, float_buffer=(m == "position"))
         if m in noncolor: img.colorspace_settings.name = "Non-Color"
         if m == "normal": img.generated_color = (0.5, 0.5, 1.0, 1.0)  # missed bake rays stay flat, not black
+        if m in ("basecolor", "roughness", "emission"): img.generated_color = (1.0, 0.0, 1.0, 1.0)  # miss sentinel
         node = nt.nodes.new("ShaderNodeTexImage"); node.image = img; node.name = m
         imgs[m] = (img, node)
     obj.data.materials.clear(); obj.data.materials.append(mat)
@@ -237,11 +238,33 @@ def _sample(img, uv):
     return px[y0, x0] * (1 - fx) * (1 - fy) + px[y0, x1] * fx * (1 - fy) + px[y1, x0] * (1 - fx) * fy + px[y1, x1] * fx * fy
 
 
-def transfer_maps(src, dst, imgs, tex_dir, prefix, margin=12):
-    """For every texel of dst, copy base colour / emission / roughness from the closest point on src.
+def ray_bake_colors(src, dst, imgs, cage, max_ray, margin=12):
+    """Ray-cast bake (projects along the surface normal from a cage outside dst) of base colour, emission and
+    roughness from src. Hits the OUTER surface first, unlike nearest-point lookups which land on Pixal3D's dark
+    inner layers. Texels whose ray misses keep the magenta sentinel."""
+    sc = bpy.context.scene
+    sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 1
+    bk = sc.render.bake
+    bk.use_selected_to_active = True; bk.cage_extrusion = cage; bk.max_ray_distance = max_ray; bk.margin = margin
+    bk.margin_type = "ADJACENT_FACES"
+    bk.use_pass_direct = False; bk.use_pass_indirect = False; bk.use_pass_color = True
+    src.hide_set(False); src.hide_render = False
+    for o in sc.objects: o.select_set(o in (src, dst))
+    bpy.context.view_layer.objects.active = dst
+    nt = dst.data.materials[0].node_tree
+    for name, btype, kw in (("basecolor", "DIFFUSE", {"pass_filter": {"COLOR"}}), ("emission", "EMIT", {}), ("roughness", "ROUGHNESS", {})):
+        if name in imgs:
+            _set_active_node(nt, imgs[name][1]); bpy.ops.object.bake(type=btype, **kw)
+
+
+def transfer_maps(src, dst, imgs, tex_dir, prefix, margin=12, cage=None, max_ray=None):
+    """Colour maps for dst: ray-cast bake from src (if cage/max_ray given), with the closest-point-on-src value as
+    fallback for missed texels (or for everything when no cage is given).
     Returns (texel positions HxWx3 with NaN outside islands, valid mask)."""
     sc = bpy.context.scene
     nt = dst.data.materials[0].node_tree
+    if cage is not None:
+        ray_bake_colors(src, dst, imgs, cage, max_ray, margin)
     size = imgs["basecolor"][0].size[0]
     if "position" not in imgs:
         img = bpy.data.images.new(f"{prefix}_position", size, size, alpha=False, float_buffer=True)
@@ -288,6 +311,11 @@ def transfer_maps(src, dst, imgs, tex_dir, prefix, margin=12):
             out[valid, :3] = vals[:, chan:chan + 1] if chan is not None else vals[:, :3]
         elif name == "roughness":
             out[valid, :3] = 0.75
+        if cage is not None:  # keep ray-baked texels; nearest-surface only where the ray missed
+            baked = np.array(imgs[name][0].pixels[:], np.float32).reshape(size, size, 4)
+            missed = (np.abs(baked[..., 0] - 1) < 0.02) & (baked[..., 1] < 0.02) & (np.abs(baked[..., 2] - 1) < 0.02)
+            use = valid & ~missed
+            out[use, :3] = baked[use, :3]
         out = dilate(out, valid)
         img = imgs[name][0]; img.pixels = out.ravel()
         img.filepath_raw = os.path.join(tex_dir, f"{prefix}_{name}.png"); img.file_format = "PNG"; img.save()

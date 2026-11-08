@@ -1,0 +1,46 @@
+[SPARSE] Conv backend: flex_gemm; Attention backend: flash_attn
+[Pipeline] Loading from TencentARC/Pixal3D...
+[ATTENTION] Using backend: flash_attn
+[ImageCond] Building DinoV3ProjFeatureExtractor models...
+[NAF] Pre-loading NAF upsampler model...
+[Pipeline] Standard mode (all models on GPU).
+[Inference] Processing image: /home/mascot/items/mushroom_lamp.png
+[MoGe-2] Loading model for camera estimation...
+[Inference] Estimating camera parameters...
+  camera_angle_x=0.5208, distance=1.8765
+[Inference] Running 3D generation pipeline...
+[Inference] Using pipeline_type=1536_cascade
+Sampling sparse structure (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling sparse structure (proj):   8%|▊         | 1/12 [00:00<00:01,  5.97it/s]Sampling sparse structure (proj):  25%|██▌       | 3/12 [00:00<00:01,  8.60it/s]Sampling sparse structure (proj):  42%|████▏     | 5/12 [00:00<00:00,  9.30it/s]Sampling sparse structure (proj):  58%|█████▊    | 7/12 [00:00<00:00,  9.60it/s]Sampling sparse structure (proj):  75%|███████▌  | 9/12 [00:00<00:00,  9.76it/s]Sampling sparse structure (proj):  92%|█████████▏| 11/12 [00:01<00:00, 10.78it/s]Sampling sparse structure (proj): 100%|██████████| 12/12 [00:01<00:00, 10.35it/s]
+Sampling shape SLat (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling shape SLat (proj):   8%|▊         | 1/12 [00:00<00:01,  6.25it/s]Sampling shape SLat (proj):  17%|█▋        | 2/12 [00:00<00:01,  6.92it/s]Sampling shape SLat (proj):  25%|██▌       | 3/12 [00:00<00:01,  7.18it/s]Sampling shape SLat (proj):  33%|███▎      | 4/12 [00:00<00:01,  7.33it/s]Sampling shape SLat (proj):  42%|████▏     | 5/12 [00:00<00:00,  7.40it/s]Sampling shape SLat (proj):  50%|█████     | 6/12 [00:00<00:00,  7.43it/s]Sampling shape SLat (proj):  58%|█████▊    | 7/12 [00:00<00:00,  7.44it/s]Sampling shape SLat (proj):  67%|██████▋   | 8/12 [00:01<00:00,  7.48it/s]Sampling shape SLat (proj):  75%|███████▌  | 9/12 [00:01<00:00,  7.51it/s]Sampling shape SLat (proj):  92%|█████████▏| 11/12 [00:01<00:00,  9.89it/s]Sampling shape SLat (proj): 100%|██████████| 12/12 [00:01<00:00,  8.45it/s]
+Sampling HR shape SLat (proj, 1536):   0%|          | 0/12 [00:00<?, ?it/s]Sampling HR shape SLat (proj, 1536):   8%|▊         | 1/12 [00:02<00:26,  2.43s/it]Sampling HR shape SLat (proj, 1536):  17%|█▋        | 2/12 [00:04<00:24,  2.44s/it]Sampling HR shape SLat (proj, 1536):  25%|██▌       | 3/12 [00:07<00:21,  2.44s/it]Sampling HR shape SLat (proj, 1536):  33%|███▎      | 4/12 [00:09<00:19,  2.45s/it]Sampling HR shape SLat (proj, 1536):  42%|████▏     | 5/12 [00:12<00:17,  2.45s/it]Sampling HR shape SLat (proj, 1536):  50%|█████     | 6/12 [00:14<00:14,  2.45s/it]Sampling HR shape SLat (proj, 1536):  58%|█████▊    | 7/12 [00:17<00:12,  2.45s/it]Sampling HR shape SLat (proj, 1536):  67%|██████▋   | 8/12 [00:19<00:09,  2.45s/it]Sampling HR shape SLat (proj, 1536):  75%|███████▌  | 9/12 [00:22<00:07,  2.45s/it]Sampling HR shape SLat (proj, 1536):  83%|████████▎ | 10/12 [00:23<00:04,  2.07s/it]Sampling HR shape SLat (proj, 1536):  92%|█████████▏| 11/12 [00:24<00:01,  1.81s/it]Sampling HR shape SLat (proj, 1536): 100%|██████████| 12/12 [00:25<00:00,  1.63s/it]Sampling HR shape SLat (proj, 1536): 100%|██████████| 12/12 [00:25<00:00,  2.14s/it]
+Sampling texture SLat (proj):   0%|          | 0/12 [00:00<?, ?it/s]Sampling texture SLat (proj):   8%|▊         | 1/12 [00:01<00:13,  1.22s/it]Sampling texture SLat (proj):  17%|█▋        | 2/12 [00:02<00:12,  1.22s/it]Sampling texture SLat (proj):  25%|██▌       | 3/12 [00:03<00:11,  1.23s/it]Sampling texture SLat (proj):  33%|███▎      | 4/12 [00:04<00:09,  1.23s/it]Sampling texture SLat (proj):  42%|████▏     | 5/12 [00:06<00:08,  1.23s/it]Sampling texture SLat (proj):  50%|█████     | 6/12 [00:07<00:07,  1.23s/it]Sampling texture SLat (proj):  58%|█████▊    | 7/12 [00:08<00:06,  1.23s/it]Sampling texture SLat (proj):  67%|██████▋   | 8/12 [00:09<00:04,  1.23s/it]Sampling texture SLat (proj):  75%|███████▌  | 9/12 [00:11<00:03,  1.23s/it]Sampling texture SLat (proj):  83%|████████▎ | 10/12 [00:12<00:02,  1.23s/it]Sampling texture SLat (proj):  92%|█████████▏| 11/12 [00:13<00:01,  1.23s/it]Sampling texture SLat (proj): 100%|██████████| 12/12 [00:14<00:00,  1.23s/it]Sampling texture SLat (proj): 100%|██████████| 12/12 [00:14<00:00,  1.23s/it]
+[Inference] Extracting GLB...
+Extracting GLB:   0%|          | 0/6 [00:00<?, ?it/s]Building BVH:  17%|█▋        | 1/6 [00:00<00:00, 73.07it/s]Building BVH:  33%|███▎      | 2/6 [00:11<00:22,  5.60s/it]Cleaning mesh:  33%|███▎      | 2/6 [00:11<00:22,  5.60s/it]/home/mascot/miniconda3/envs/trellis2/lib/python3.10/site-packages/cumesh/remeshing.py:220: UserWarning: Using torch.cross without specifying the dim arg is deprecated.
+Please either pass the dim explicitly or simply use torch.linalg.cross.
+The default value of dim will change to agree with that of linalg.cross in a future release. (Triggered internally at /pytorch/aten/src/ATen/native/Cross.cpp:62.)
+  normals0 = torch.cross(mesh_vertices[atempt_triangles_0[:, 1]] - mesh_vertices[atempt_triangles_0[:, 0]], mesh_vertices[atempt_triangles_0[:, 2]] - mesh_vertices[atempt_triangles_0[:, 0]])
+Cleaning mesh:  50%|█████     | 3/6 [00:15<00:14,  4.98s/it]Parameterizing new mesh:  50%|█████     | 3/6 [00:15<00:14,  4.98s/it]Parameterizing new mesh:  67%|██████▋   | 4/6 [00:47<00:30, 15.02s/it]Sampling attributes:  67%|██████▋   | 4/6 [00:47<00:30, 15.02s/it]    Sampling attributes:  83%|████████▎ | 5/6 [00:48<00:10, 10.39s/it]Finalizing mesh:  83%|████████▎ | 5/6 [00:48<00:10, 10.39s/it]    Finalizing mesh: 100%|██████████| 6/6 [01:04<00:00, 12.17s/it]Finalizing mesh: 100%|██████████| 6/6 [01:04<00:00, 10.77s/it]
+[Done] GLB saved to: /home/mascot/runs/items/mushroom_lamp.glb
+	Command being timed: "python inference.py --image /home/mascot/items/mushroom_lamp.png --output /home/mascot/runs/items/mushroom_lamp.glb --seed 42"
+	User time (seconds): 446.32
+	System time (seconds): 41.53
+	Percent of CPU this job got: 250%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:14.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 19066000
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 9
+	Minor (reclaiming a frame) page faults: 10282883
+	Voluntary context switches: 455624
+	Involuntary context switches: 7532
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 70352
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -14,14 +14,16 @@
    "type": "socket",
    "method": "pixal3d",
    "desc": "a small flower crown: a ring of chubby rounded clay flowers in cream, dusty coral and soft lavender with little sage leaves, thick and plump so it reads as one solid ring",
-   "tris": 10000
+   "tris": 10000,
+   "remesh": "voxel"
   },
   {
    "id": "round_glasses",
    "slot": "face",
    "type": "socket",
    "method": "pixal3d",
-   "desc": "a pair of cute round glasses with very thick, chunky rounded warm-brown frames and short stubby temples, no lenses (empty rings), toy-like proportions"
+   "desc": "a pair of cute round glasses with very thick, chunky rounded warm-brown frames and short stubby temples, no lenses (empty rings), toy-like proportions",
+   "remesh": "voxel"
   },
   {
    "id": "bow_tie",
@@ -56,14 +58,18 @@
    "slot": "feet",
    "type": "socket",
    "method": "pixal3d",
-   "desc": "a single cute round chubby bootie slipper, cream knit with a sage-teal cuff and a tiny pompom, very short and round (for stubby chibi feet)"
+   "desc": "a single cute round chubby bootie slipper, cream knit with a sage-teal cuff and a tiny pompom, very short and round (for stubby chibi feet)",
+   "remesh": "meshlab",
+   "cage_rel": 0.025
   },
   {
    "id": "tail_ribbon",
    "slot": "tail",
    "type": "socket",
    "method": "pixal3d",
-   "desc": "a plump soft-lavender ribbon bow tied around a short thick band ring, with two short rounded ribbon tails"
+   "desc": "a plump soft-lavender ribbon bow tied around a short thick band ring, with two short rounded ribbon tails",
+   "remesh": "voxel",
+   "cage_rel": 0.02
   },
   {
    "id": "star_plush",
@@ -77,7 +83,8 @@
    "slot": "room",
    "type": "prop",
    "method": "pixal3d",
-   "desc": "a round plush pet bed: a plump cream rounded rim with a sage-teal soft cushion inside"
+   "desc": "a round plush pet bed: a plump cream rounded rim with a sage-teal soft cushion inside",
+   "remesh": "voxel"
   },
   {
    "id": "food_bowl",
@@ -85,7 +92,9 @@
    "type": "prop",
    "method": "pixal3d",
    "desc": "a round chunky pet food bowl in dusty coral with a cream rim, filled with round berry-shaped treats",
-   "tris": 10000
+   "tris": 10000,
+   "remesh": "meshlab",
+   "cage_rel": 0.025
   },
   {
    "id": "potted_plant",
@@ -101,11 +110,12 @@
    "method": "pixal3d",
    "desc": "a mushroom-shaped table lamp: chubby cream stem, rounded warm honey-yellow softly glowing cap with cream dots",
    "emissive": {
-    "r_min": 0.85,
-    "g_min": 0.6,
-    "b_max": 0.55,
-    "strength": 1.5
-   }
+    "r_min": 0.9,
+    "g_min": 0.72,
+    "b_max": 0.5,
+    "strength": 0.8
+   },
+   "remesh": "voxel"
   },
   {
    "id": "round_rug",

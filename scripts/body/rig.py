@@ -66,6 +66,40 @@ print("bones:", len(arm_data.bones), flush=True)
 for o in bpy.context.scene.objects: o.select_set(False)
 body.select_set(True); rig.select_set(True); bpy.context.view_layer.objects.active = rig
 bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+# ---- constrain heat weights by body region: auto weights bleed between parts that sit close together
+# (the stubby arms grab the wing roots, wings grab the arms). Each region may only follow its own bones.
+import numpy as np
+def allowed(x, y, z):
+    ax = abs(x); side = "right" if x > 0 else "left"
+    core = {"hips", "spine", "chest"}
+    if z > -0.03:                                             # head + ears + horns + crest
+        a = {"head", "neck"}
+        if ax > 0.24 and z < 0.35: a |= {f"{side}Ear_0", f"{side}Ear_1"}  # ear frills only (not the horn tips)
+        return a
+    if y < -0.02 and ax > 0.13 and -0.27 < z < 0.0:          # wing membrane / wing arm (behind the body)
+        return core | {"neck", f"{side}Wing_0", f"{side}Wing_1", f"{side}Wing_2"}
+    if y > 0.04 and 0.07 < ax < 0.27 and -0.34 < z < -0.09:  # arms + hands (in front of the belly)
+        return core | {f"{side}UpperArm", f"{side}LowerArm", f"{side}Hand"}
+    if y < -0.11 and z < -0.24 and ax < 0.1:                  # tail stub
+        return {"hips", "tail_0", "tail_1"}
+    if z < -0.33:                                             # legs + feet
+        return {"hips", f"{side}UpperLeg", f"{side}LowerLeg", f"{side}Foot"}
+    return core | {"neck"}  # torso / collar / cape: follows the trunk only (arms must not drag the collar flap)
+gi = {g.index: g.name for g in body.vertex_groups}
+fixed = 0
+for v in body.data.vertices:
+    a = allowed(*v.co)
+    ws = {gi[g.group]: g.weight for g in v.groups}
+    keep = {n: w for n, w in ws.items() if n in a and w > 1e-4}
+    if not keep:  # nothing allowed survived: give it to the nearest allowed bone head
+        nb = min(a, key=lambda n: (rig.data.bones[n].head_local - v.co).length); keep = {nb: 1.0}
+    tot = sum(keep.values())
+    if keep.keys() != ws.keys(): fixed += 1
+    for n in ws:
+        body.vertex_groups[n].remove([v.index])
+    for n, w in keep.items():
+        body.vertex_groups[n].add([v.index], w / tot, "REPLACE")
+print(f"region-constrained weights: adjusted {fixed} vertices", flush=True)
 groups = {g.index: g.name for g in body.vertex_groups}
 unweighted = sum(1 for v in body.data.vertices if not any(g.weight > 0.001 for g in v.groups))
 print(f"skinned: {len(groups)} vertex groups, unweighted vertices: {unweighted}", flush=True)
@@ -88,22 +122,27 @@ if POSES:
     cam.location = d * 2.6; cam.rotation_euler = (-d).to_track_quat("-Z", "Y").to_euler()
     sun.rotation_euler = (-(d + Vector((0.3, 0, 0.9)))).to_track_quat("-Z", "Y").to_euler()
     P = rig.pose.bones
+    from mathutils import Matrix
     def reset():
-        for pb in P: pb.rotation_mode = "XYZ"; pb.rotation_euler = (0, 0, 0); pb.location = (0, 0, 0)
+        for pb in P: pb.rotation_mode = "QUATERNION"; pb.rotation_quaternion = (1, 0, 0, 0); pb.location = (0, 0, 0)
+    def world_rot(bone, axis, deg):
+        """Rotate a pose bone about a WORLD axis (rest-pose relative; fine for test poses)."""
+        ml = rig.data.bones[bone].matrix_local.to_3x3()
+        R = Matrix.Rotation(math.radians(deg), 3, axis)
+        P[bone].rotation_quaternion = (ml.inverted() @ R @ ml).to_quaternion()
+    # (bone, world axis, degrees). +X = character right, +Y = front, +Z = up.
     poses = {
-        "rest": {},
-        "wave": {"rightUpperArm": (0, 0, math.radians(-70)), "rightLowerArm": (0, 0, math.radians(-40)), "head": (0, math.radians(12), 0)},
-        "happy": {"head": (math.radians(-10), 0, math.radians(10)), "leftUpperArm": (0, 0, math.radians(60)), "rightUpperArm": (0, 0, math.radians(-60)),
-                  "leftWing_0": (0, 0, math.radians(25)), "rightWing_0": (0, 0, math.radians(-25)), "tail_0": (0, 0, math.radians(30))},
-        "sad": {"head": (math.radians(18), 0, 0), "neck": (math.radians(8), 0, 0), "leftEar_0": (0, math.radians(-35), 0), "rightEar_0": (0, math.radians(35), 0),
-                "leftWing_0": (0, 0, math.radians(-20)), "rightWing_0": (0, 0, math.radians(20))},
-        "step": {"leftUpperLeg": (math.radians(-35), 0, 0), "leftLowerLeg": (math.radians(25), 0, 0), "rightUpperLeg": (math.radians(15), 0, 0),
-                 "spine": (0, 0, math.radians(8))},
+        "rest": [],
+        "wave": [("rightUpperArm", "Y", 75), ("rightLowerArm", "Y", 40), ("head", "Y", -10)],
+        "happy": [("leftUpperArm", "Y", -55), ("rightUpperArm", "Y", 55), ("leftWing_0", "Y", -30), ("rightWing_0", "Y", 30),
+                  ("head", "X", 10), ("tail_0", "Z", 25)],
+        "sad": [("head", "X", -18), ("leftEar_0", "Y", 30), ("rightEar_0", "Y", -30), ("leftWing_0", "Y", 20), ("rightWing_0", "Y", -20)],
+        "step": [("leftUpperLeg", "X", 40), ("leftLowerLeg", "X", -30), ("rightUpperLeg", "X", -15), ("spine", "Z", 8)],
     }
     tiles = []
     for name, rot in poses.items():
         reset()
-        for b, r in rot.items(): P[b].rotation_euler = r
+        for b, ax, deg in rot: world_rot(b, ax, deg)
         bpy.context.view_layer.update()
         sc.render.filepath = tempfile.mktemp(suffix=".png"); bpy.ops.render.render(write_still=True)
         im = bpy.data.images.load(sc.render.filepath)
