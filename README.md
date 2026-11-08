@@ -1,5 +1,7 @@
 # 3D mascot — sage green chibi dragon
 
+> **Continuing this project? Read [`HANDOFF.md`](HANDOFF.md) first** — status, conventions, infra, gotchas, next steps.
+
 Image-to-3D baseline for the dragon mascot, generated with [Pixal3D](https://github.com/TencentARC/Pixal3D)
 (TencentARC, SIGGRAPH 2026, TRELLIS.2 backbone) on a Nebius H200 VM.
 
